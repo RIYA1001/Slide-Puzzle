@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Slide Puzzle Game</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+
+  </head>
+  <body class="bg-gray-100">
+    <div class="text-center my-28 p-2">
+      <h1 class="text-3xl font-bold">Welcome to Slide Puzzle Game</h1>
+      <br>
+      <br>
+      <div class="puzzle my-10" id="puzzle"></div>
+    </div>
+
+    <script>
+      // JavaScript for Slide Puzzle
+      const size = 3;
+      let tiles = [];
+
+      document.addEventListener("DOMContentLoaded", () => {
+        initializeTiles();
+      });
+
+      const initializeTiles = () => {
+        tiles = Array.from({ length: size * size }, (_, index) => index + 1);
+        tiles[size * size - 1] = null;
+        shuffleTiles();
+        renderTiles();
+      };
+
+      const shuffleTiles = () => {
+        for (let i = tiles.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+        }
+      };
+
+      const handleTileClick = (index) => {
+        const emptyIndex = tiles.indexOf(null);
+        if (isMoveValid(index, emptyIndex)) {
+          [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
+          renderTiles();
+          checkForWin();
+        }
+      };
+
+      const isMoveValid = (clickedIndex, emptyIndex) => {
+        const rowClicked = Math.floor(clickedIndex / size);
+        const colClicked = clickedIndex % size;
+        const rowEmpty = Math.floor(emptyIndex / size);
+        const colEmpty = emptyIndex % size;
+
+        return (
+          (rowClicked === rowEmpty && Math.abs(colClicked - colEmpty) === 1) ||
+          (colClicked === colEmpty && Math.abs(rowClicked - rowEmpty) === 1)
+        );
+      };
+
+      const checkForWin = () => {
+        const isWin =
+          tiles
+            .slice(0, tiles.length - 1)
+            .every((value, index) => value === index + 1) &&
+          tiles[tiles.length - 1] === null;
+        if (isWin) {
+          initializeTiles();
+          alert("Congratulations! You solved the puzzle!");
+        }
+      };
+
+      const renderTiles = () => {
+        const puzzleContainer = document.getElementById("puzzle");
+        puzzleContainer.innerHTML = "";
+        tiles.forEach((value, index) => {
+          const tile = document.createElement("div");
+          tile.textContent = value || "";
+          tile.className = `tile ${value === null ? "empty" : ""}`;
+          tile.addEventListener("click", () => handleTileClick(index));
+          puzzleContainer.appendChild(tile);
+        });
+      };
+    </script>
+  </body>
+</html>
